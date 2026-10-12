@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SlotMind — Warehouse Slotting Optimizer</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap');
+:root{
+  --bg:#080b10; --panel:#10151d; --panel2:#141b24; --line:#26303d;
+  --text:#eef3f8; --muted:#8793a3; --cyan:#55e6c1; --blue:#70a7ff;
+  --amber:#ffcb70; --red:#ff7272; --shadow:0 20px 60px rgba(0,0,0,.28);
+}
+*{box-sizing:border-box} body{margin:0;background:radial-gradient(circle at 80% -10%,#17302c 0,transparent 32%),var(--bg);color:var(--text);font-family:Manrope,Arial,sans-serif}
+button,input,select{font:inherit}.app{display:flex;min-height:100vh}
+.sidebar{width:250px;border-right:1px solid var(--line);padding:25px 18px;position:fixed;height:100vh;background:rgba(8,11,16,.92);backdrop-filter:blur(18px);z-index:5}
+.brand{display:flex;gap:11px;align-items:center;margin-bottom:42px}.logo{width:40px;height:40px;border:1px solid #36584f;border-radius:12px;display:grid;place-items:center;background:#10211d;font-weight:800;color:var(--cyan)}
+.brand b{font-size:17px}.brand small{display:block;color:var(--muted);font-size:10px;letter-spacing:1.5px}
+.nav{display:grid;gap:7px}.nav button{border:0;background:transparent;color:#9ba7b7;text-align:left;padding:12px 13px;border-radius:10px;cursor:pointer;display:flex;gap:11px;align-items:center}.nav button.active,.nav button:hover{background:#151e27;color:#fff}.nav i{font-style:normal;width:20px}
+.side-bottom{position:absolute;bottom:24px;left:18px;right:18px;border-top:1px solid var(--line);padding-top:18px;color:var(--muted);font-size:11px;line-height:1.6}
+main{margin-left:250px;width:calc(100% - 250px);padding:30px 34px 60px}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px}.eyebrow{font-family:"DM Mono";font-size:11px;color:var(--cyan);letter-spacing:2px}.top h1{font-size:30px;margin:5px 0}.top p{margin:0;color:var(--muted);font-size:13px}.status{border:1px solid #315448;background:#0d1d19;color:var(--cyan);padding:8px 12px;border-radius:30px;font-size:11px}
+.hero{display:grid;grid-template-columns:1.55fr .8fr;gap:18px;margin-bottom:18px}
+.card{background:linear-gradient(145deg,rgba(19,26,35,.94),rgba(12,17,23,.94));border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow)}
+.hero-card{padding:27px;min-height:260px;position:relative;overflow:hidden}.hero-card:after{content:"";position:absolute;width:260px;height:260px;border-radius:50%;right:-80px;bottom:-120px;border:1px solid #254a43;box-shadow:0 0 0 35px rgba(85,230,193,.025),0 0 0 70px rgba(85,230,193,.018)}
+.hero-card h2{font-size:34px;line-height:1.1;margin:10px 0 13px;max-width:600px}.hero-card p{color:var(--muted);max-width:620px;line-height:1.7;font-size:13px}.actions{display:flex;gap:10px;margin-top:22px}.btn{border:1px solid var(--line);background:#171f28;color:#fff;border-radius:10px;padding:11px 16px;cursor:pointer;font-weight:700;font-size:12px}.btn.primary{background:var(--cyan);color:#06110e;border-color:var(--cyan)}.btn:hover{transform:translateY(-1px)}
+.score{padding:25px;display:flex;flex-direction:column;justify-content:space-between}.score-head{display:flex;justify-content:space-between;color:var(--muted);font-size:12px}.ring{width:150px;height:150px;border-radius:50%;margin:8px auto 0;background:conic-gradient(var(--cyan) 0 74%,#24302d 74% 100%);display:grid;place-items:center}.ring:before{content:"";width:112px;height:112px;border-radius:50%;background:#0e141b;position:absolute}.ring span{position:relative;font-size:31px;font-weight:800}.score small{color:var(--muted);text-align:center}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}.metric{padding:18px}.metric .label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}.metric strong{font-size:25px;display:block;margin:9px 0 3px}.good{color:var(--cyan)}.warn{color:var(--amber)}.metric small{color:#6f7b89;font-size:11px}
+.grid{display:grid;grid-template-columns:1.15fr .85fr;gap:18px}.panel{padding:20px}.panel-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:17px}.panel-head h3{margin:0;font-size:15px}.panel-head span{font-size:11px;color:var(--muted)}
+.warehouse{display:grid;grid-template-columns:repeat(8,1fr);gap:7px}.slot{height:48px;border:1px solid #27323f;border-radius:7px;background:#111821;display:flex;align-items:center;justify-content:center;font-family:"DM Mono";font-size:9px;color:#718092;cursor:pointer;transition:.2s}.slot:hover{border-color:var(--cyan);transform:scale(1.03)}.slot.hot{background:#17332f;border-color:#2f806e;color:#b7fff0}.slot.mid{background:#1c2934;border-color:#405a70;color:#a9c8e8}.slot.cold{background:#171b21}.slot.changed{box-shadow:0 0 0 2px var(--amber) inset}.legend{display:flex;gap:15px;margin-top:13px;color:var(--muted);font-size:10px}.dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:5px}.table{width:100%;border-collapse:collapse;font-size:11px}.table th{color:#6f7c8c;text-align:left;font-weight:500;padding:8px;border-bottom:1px solid var(--line)}.table td{padding:10px 8px;border-bottom:1px solid #1d2630}.pill{padding:4px 7px;border-radius:20px;font-size:9px}.pill.green{background:#12352e;color:var(--cyan)}.pill.amber{background:#392d18;color:var(--amber)}
+.bar-wrap{margin:17px 0}.bar-title{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:6px}.bar{height:9px;border-radius:10px;background:#1b232c;overflow:hidden}.bar i{display:block;height:100%;border-radius:10px;background:linear-gradient(90deg,var(--blue),var(--cyan))}
+.activity{display:grid;gap:12px}.event{display:flex;gap:10px;align-items:flex-start}.event .ico{width:29px;height:29px;border-radius:8px;background:#18212b;display:grid;place-items:center;font-size:12px}.event b{font-size:11px}.event small{display:block;color:var(--muted);margin-top:3px}
+.full{margin-top:18px}.simulator{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}.sim{background:#0d131a;border:1px solid #202a35;border-radius:12px;padding:15px}.sim label{font-size:10px;color:var(--muted);display:block;margin-bottom:7px}.sim select,.sim input{width:100%;background:#151d26;border:1px solid #2a3542;color:#fff;border-radius:8px;padding:9px;font-size:11px}.result{margin-top:15px;padding:15px;border-radius:12px;background:#10231f;border:1px solid #255347;display:none}.result strong{color:var(--cyan)}
+.toast{position:fixed;right:24px;bottom:24px;background:#eafcf7;color:#07120f;padding:13px 17px;border-radius:10px;font-size:12px;font-weight:700;transform:translateY(100px);opacity:0;transition:.3s;z-index:20}.toast.show{transform:none;opacity:1}
+.page{display:none}.page.active{display:block}
+@media(max-width:900px){.sidebar{width:70px}.brand div:not(.logo),.brand small,.nav span,.side-bottom{display:none}.brand{justify-content:center}.nav button{justify-content:center}.sidebar{padding:20px 10px}main{margin-left:70px;width:calc(100% - 70px);padding:20px}.hero,.grid{grid-template-columns:1fr}.metrics{grid-template-columns:1fr 1fr}.simulator{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div class="brand"><div class="logo">S</div><div><b>SlotMind</b><small>WAREHOUSE INTELLIGENCE</small></div></div>
+  <div class="nav">
+    <button class="active" onclick="showPage('overview',this)">◈ <span>Overview</span></button>
+    <button onclick="showPage('layout',this)">▦ <span>Slot Layout</span></button>
+    <button onclick="showPage('affinity',this)">⌘ <span>Affinity Engine</span></button>
+    <button onclick="showPage('simulation',this)">◉ <span>Simulation</span></button>
+  </div>
+  <div class="side-bottom">PROJECT IMPLEMENTATION<br><b>Warehouse Slotting Optimizer</b><br>DSA / CSE</div>
+</aside>
+
+<main>
+<section id="overview" class="page active">
+  <div class="top"><div><div class="eyebrow">CONTROL CENTER / 24 SEP 2026</div><h1>Warehouse Intelligence</h1><p>Turn order history into smarter storage decisions.</p></div><div class="status">● OPTIMIZER ONLINE</div></div>
+  <div class="hero">
+    <div class="card hero-card">
+      <div class="eyebrow">SLOTMIND ENGINE</div>
+      <h2>Put products where the warehouse already wants them.</h2>
+      <p>SlotMind mines co-pick relationships from historical orders, converts them into product affinity, then reorganizes storage slots to reduce expected picker travel.</p>
+      <div class="actions"><button class="btn primary" onclick="optimize()">Run Optimization ↗</button><button class="btn" onclick="showPage('affinity',document.querySelectorAll('.nav button')[2])">View Affinity</button></div>
+    </div>
+    <div class="card score"><div class="score-head"><span>WAREHOUSE HEALTH</span><span>LIVE</span></div><div class="ring"><span>74</span></div><small>Optimization opportunity detected</small></div>
+  </div>
+  <div class="metrics">
+    <div class="card metric"><div class="label">Pick Distance</div><strong id="distance">1,250 m</strong><small>baseline per 100 orders</small></div>
+    <div class="card metric"><div class="label">Projected Distance</div><strong id="projected" class="good">830 m</strong><small>after slot optimization</small></div>
+    <div class="card metric"><div class="label">Travel Saved</div><strong id="saved" class="good">33.6%</strong><small>expected reduction</small></div>
+    <div class="card metric"><div class="label">Co-Pick Links</div><strong>27</strong><small>high-confidence relationships</small></div>
+  </div>
+  <div class="grid">
+    <div class="card panel"><div class="panel-head"><h3>Current Warehouse Map</h3><span>8 × 8 storage grid</span></div><div class="warehouse" id="warehouse"></div><div class="legend"><span><i class="dot" style="background:#55e6c1"></i>High affinity</span><span><i class="dot" style="background:#70a7ff"></i>Medium</span><span><i class="dot" style="background:#52606e"></i>Low</span><span><i class="dot" style="background:#ffcb70"></i>Moved</span></div></div>
+    <div class="card panel"><div class="panel-head"><h3>Top Co-Pick Relationships</h3><span>FP-Growth</span></div><table class="table"><thead><tr><th>PRODUCTS</th><th>SUPPORT</th><th>CONF.</th></tr></thead><tbody>
+      <tr><td><b>SKU-104</b> + <b>SKU-117</b></td><td>72%</td><td><span class="pill green">94%</span></td></tr>
+      <tr><td><b>SKU-102</b> + <b>SKU-109</b></td><td>64%</td><td><span class="pill green">89%</span></td></tr>
+      <tr><td><b>SKU-111</b> + <b>SKU-118</b></td><td>58%</td><td><span class="pill amber">81%</span></td></tr>
+      <tr><td><b>SKU-103</b> + <b>SKU-115</b></td><td>51%</td><td><span class="pill amber">77%</span></td></tr>
+    </tbody></table>
+      <div class="bar-wrap"><div class="bar-title"><span>Layout efficiency</span><b>74%</b></div><div class="bar"><i style="width:74%"></i></div></div>
+      <div class="bar-wrap"><div class="bar-title"><span>Data quality</span><b>91%</b></div><div class="bar"><i style="width:91%"></i></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="layout" class="page">
+  <div class="top"><div><div class="eyebrow">SPATIAL MODEL</div><h1>Slot Layout</h1><p>Explore product placement and see where optimization changes the warehouse.</p></div></div>
+  <div class="card panel"><div class="panel-head"><h3>Interactive Storage Grid</h3><span>Click a slot</span></div><div class="warehouse" id="warehouse2"></div><div id="slotInfo" style="margin-top:15px;color:#8793a3;font-size:12px">Select a slot to inspect its SKU, demand and affinity.</div></div>
+</section>
+
+<section id="affinity" class="page">
+  <div class="top"><div><div class="eyebrow">RELATIONSHIP ENGINE</div><h1>Affinity Matrix</h1><p>Products frequently picked together should live close together.</p></div></div>
+  <div class="card panel">
+    <div class="panel-head"><h3>Co-Pick Affinity Heatmap</h3><span>0 = unrelated · 1 = strong relationship</span></div>
+    <div id="matrix"></div>
+  </div>
+  <div class="card panel full"><div class="panel-head"><h3>How the engine works</h3><span>Implementation pipeline</span></div>
+    <div class="simulator">
+      <div class="sim"><label>01 · DATA COLLECTION</label><b>Orders + SKU data</b><p style="color:#8793a3;font-size:11px">Historical transactions become item baskets.</p></div>
+      <div class="sim"><label>02 · CO-PICK MINING</label><b>FP-Growth / Apriori</b><p style="color:#8793a3;font-size:11px">Frequent itemsets reveal product relationships.</p></div>
+      <div class="sim"><label>03 · OPTIMIZATION</label><b>Slot assignment</b><p style="color:#8793a3;font-size:11px">High-affinity products are moved toward nearby slots.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="simulation" class="page">
+  <div class="top"><div><div class="eyebrow">WHAT-IF LAB</div><h1>Optimization Simulator</h1><p>Change the warehouse conditions and preview the impact.</p></div></div>
+  <div class="card panel">
+    <div class="simulator">
+      <div class="sim"><label>ORDER VOLUME</label><input id="orders" type="range" min="50" max="500" value="100" oninput="document.getElementById('orderVal').textContent=this.value"><b><span id="orderVal">100</span> orders</b></div>
+      <div class="sim"><label>OPTIMIZATION STRENGTH</label><select id="strength"><option value=".18">Conservative</option><option value=".28" selected>Balanced</option><option value=".36">Aggressive</option></select></div>
+      <div class="sim"><label>RUN MODEL</label><button class="btn primary" style="width:100%" onclick="simulate()">Calculate Impact</button></div>
+    </div>
+    <div class="result" id="result"></div>
+  </div>
+  <div class="card panel full"><div class="panel-head"><h3>Optimization Events</h3><span>Latest run</span></div><div class="activity">
+    <div class="event"><div class="ico">↗</div><div><b>SKU-104 moved from A07 → A02</b><small>Reason: strong affinity with SKU-117 · expected travel −38 m</small></div></div>
+    <div class="event"><div class="ico">↗</div><div><b>SKU-102 moved from G02 → F03</b><small>Reason: strong affinity with SKU-109 · expected travel −31 m</small></div></div>
+    <div class="event"><div class="ico">✓</div><div><b>Optimization completed</b><small>64 candidate slots evaluated · 27 affinity links considered</small></div></div>
+  </div></div>
+</section>
+</main>
+</div>
+<div class="toast" id="toast">Optimization complete — layout updated.</div>
+<script>
+const skus=["SKU-101","SKU-102","SKU-103","SKU-104","SKU-105","SKU-106","SKU-107","SKU-108","SKU-109","SKU-110","SKU-111","SKU-112","SKU-113","SKU-114","SKU-115","SKU-116","SKU-117","SKU-118","SKU-119","SKU-120","SKU-121","SKU-122","SKU-123","SKU-124","SKU-125","SKU-126","SKU-127","SKU-128","SKU-129","SKU-130","SKU-131","SKU-132","SKU-133","SKU-134","SKU-135","SKU-136","SKU-137","SKU-138","SKU-139","SKU-140","SKU-141","SKU-142","SKU-143","SKU-144","SKU-145","SKU-146","SKU-147","SKU-148","SKU-149","SKU-150","SKU-151","SKU-152","SKU-153","SKU-154","SKU-155","SKU-156","SKU-157","SKU-158","SKU-159","SKU-160","SKU-161","SKU-162","SKU-163","SKU-164"];
+const hot=[1,3,8,10,16,18,25,26], mid=[0,2,4,7,9,11,14,17,20,24,27,31,33,35,40,44,50];
+function buildWarehouse(id){
+ const el=document.getElementById(id); el.innerHTML="";
+ skus.forEach((s,i)=>{let d=document.createElement("div");d.className="slot "+(hot.includes(i)?"hot":mid.includes(i)?"mid":"cold");d.textContent=s.slice(4);d.title=s;d.onclick=()=>{let r=Math.floor(i/8)+1,c=(i%8)+1;document.getElementById("slotInfo").innerHTML=`<b style="color:#fff">${s}</b> · Slot ${String.fromCharCode(64+r)}${String(c).padStart(2,"0")} · Demand ${42+i*3} units · Affinity score ${hot.includes(i)?(0.78+i%4*.04).toFixed(2):(0.31+i%5*.06).toFixed(2)}`};el.appendChild(d)})
+}
+function matrix(){
+ let el=document.getElementById("matrix"), names=["101","102","103","104","105","106","107","108"];
+ let vals=[[1,.2,.4,.88,.1,.2,.1,.3],[.2,1,.76,.2,.25,.1,.91,.2],[.4,.76,1,.2,.2,.3,.1,.68],[.88,.2,.2,1,.12,.1,.2,.18],[.1,.25,.2,.12,1,.72,.25,.2],[.2,.1,.3,.1,.72,1,.3,.22],[.1,.91,.1,.2,.25,.3,1,.16],[.3,.2,.68,.18,.2,.22,.16,1]];
+ let t='<div style="display:grid;grid-template-columns:50px repeat(8,1fr);gap:5px;max-width:700px">';t+='<div></div>'+names.map(x=>`<div style="font:10px DM Mono;color:#718092;text-align:center;padding:7px">${x}</div>`).join("");
+ vals.forEach((row,i)=>{t+=`<div style="font:10px DM Mono;color:#718092;padding:9px">${names[i]}</div>`+row.map(v=>`<div title="${v.toFixed(2)}" style="height:42px;border-radius:6px;display:grid;place-items:center;font-size:10px;background:rgba(85,230,193,${.07+v*.75});border:1px solid rgba(85,230,193,${.1+v*.5});color:#d8fff6">${v.toFixed(2)}</div>`).join("")});el.innerHTML=t+'</div>'
+}
+function showPage(id,btn){document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));document.getElementById(id).classList.add("active");document.querySelectorAll(".nav button").forEach(x=>x.classList.remove("active"));btn.classList.add("active")}
+function optimize(){document.getElementById("projected").textContent="790 m";document.getElementById("saved").textContent="36.8%";document.querySelectorAll(".slot").forEach((x,i)=>{if([1,8,16,25].includes(i))x.classList.add("changed")});let t=document.getElementById("toast");t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2500)}
+function simulate(){let o=+document.getElementById("orders").value,s=+document.getElementById("strength").value,base=Math.round(12.5*o),after=Math.round(base*(1-s)),save=Math.round((1-after/base)*1000)/10;let r=document.getElementById("result");r.style.display="block";r.innerHTML=`For <b>${o} orders</b>, the model estimates <b>${base} m</b> baseline travel and <b>${after} m</b> optimized travel — saving <strong>${save}%</strong> expected picker movement.`}
+buildWarehouse("warehouse");buildWarehouse("warehouse2");matrix();
+</script>
+</body>
+</html>
