@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Warehouse Slotting Optimizer</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- ================= HEADER ================= -->
+
+    <header class="header">
+
+        <div class="logo">
+            WAREHOUSE<span>OPTIMIZER</span>
+        </div>
+
+        <div class="connection-status">
+            <span class="status-dot"></span>
+            Backend Connected
+        </div>
+
+    </header>
+
+
+    <!-- ================= MAIN ================= -->
+
+    <main class="container">
+
+
+        <!-- ================= HERO ================= -->
+
+        <section class="hero">
+
+            <p class="tag">
+                SMART WAREHOUSE MANAGEMENT
+            </p>
+
+            <h1>
+                Warehouse Slotting
+                <span>Optimizer</span>
+            </h1>
+
+            <p class="description">
+                Optimize product placement using pick frequency,
+                quantity and product weight to improve warehouse
+                efficiency and reduce unnecessary movement.
+            </p>
+
+        </section>
+
+
+        <!-- ================= PRODUCT INPUT ================= -->
+
+        <section class="card">
+
+            <div class="section-heading">
+
+                <h2>
+                    Product Information
+                </h2>
+
+                <p>
+                    Enter the product details to calculate the optimal warehouse slot.
+                </p>
+
+            </div>
+
+
+            <div class="form-grid">
+
+
+                <!-- PRODUCT ID -->
+
+                <div class="input-group">
+
+                    <label for="productId">
+                        Product ID
+                    </label>
+
+                    <input
+                        type="text"
+                        id="productId"
+                        placeholder="Example: P001"
+                    >
+
+                </div>
+
+
+                <!-- PRODUCT NAME -->
+
+                <div class="input-group">
+
+                    <label for="productName">
+                        Product Name
+                    </label>
+
+                    <input
+                        type="text"
+                        id="productName"
+                        placeholder="Example: Keyboard"
+                    >
+
+                </div>
+
+
+                <!-- PICK FREQUENCY -->
+
+                <div class="input-group">
+
+                    <label for="pickFrequency">
+                        Pick Frequency
+                    </label>
+
+                    <input
+                        type="number"
+                        id="pickFrequency"
+                        placeholder="Example: 95"
+                        min="0"
+                        max="100"
+                    >
+
+                </div>
+
+
+                <!-- QUANTITY -->
+
+                <div class="input-group">
+
+                    <label for="quantity">
+                        Quantity
+                    </label>
+
+                    <input
+                        type="number"
+                        id="quantity"
+                        placeholder="Example: 120"
+                        min="0"
+                    >
+
+                </div>
+
+
+                <!-- WEIGHT -->
+
+                <div class="input-group">
+
+                    <label for="weight">
+                        Weight (kg)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="weight"
+                        placeholder="Example: 1.2"
+                        min="0"
+                        step="0.1"
+                    >
+
+                </div>
+
+
+                <!-- CURRENT SLOT -->
+
+                <div class="input-group">
+
+                    <label for="currentSlot">
+                        Current Slot
+                    </label>
+
+                    <input
+                        type="text"
+                        id="currentSlot"
+                        placeholder="Example: B-04"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <!-- OPTIMIZE BUTTON -->
+
+            <button
+                type="button"
+                class="optimize-btn"
+                onclick="optimizeProduct()"
+            >
+
+                OPTIMIZE SLOT
+
+            </button>
+
+        </section>
+
+
+
+        <!-- ================= RESULT ================= -->
+
+        <section
+            class="card result-card"
+            id="resultSection"
+        >
+
+            <div class="section-heading">
+
+                <h2>
+                    Optimization Result
+                </h2>
+
+                <p>
+                    Recommended warehouse placement
+                </p>
+
+            </div>
+
+
+            <div class="result-grid">
+
+
+                <!-- PRODUCT -->
+
+                <div class="result-box">
+
+                    <span>
+                        PRODUCT
+                    </span>
+
+                    <strong id="resultProduct">
+                        -
+                    </strong>
+
+                </div>
+
+
+                <!-- MOVEMENT -->
+
+                <div class="result-box">
+
+                    <span>
+                        MOVEMENT TYPE
+                    </span>
+
+                    <strong id="resultMovement">
+                        -
+                    </strong>
+
+                </div>
+
+
+                <!-- CURRENT SLOT -->
+
+                <div class="result-box">
+
+                    <span>
+                        CURRENT SLOT
+                    </span>
+
+                    <strong id="resultCurrentSlot">
+                        -
+                    </strong>
+
+                </div>
+
+
+                <!-- RECOMMENDED SLOT -->
+
+                <div class="result-box recommended">
+
+                    <span>
+                        RECOMMENDED SLOT
+                    </span>
+
+                    <strong id="resultSlot">
+                        -
+                    </strong>
+
+                </div>
+
+
+                <!-- ZONE -->
+
+                <div class="result-box">
+
+                    <span>
+                        RECOMMENDED ZONE
+                    </span>
+
+                    <strong id="resultZone">
+                        -
+                    </strong>
+
+                </div>
+
+
+                <!-- SCORE -->
+
+                <div class="result-box">
+
+                    <span>
+                        OPTIMIZATION SCORE
+                    </span>
+
+                    <strong id="resultScore">
+                        -
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ================= WAREHOUSE ZONES ================= -->
+
+        <section class="card">
+
+            <div class="section-heading">
+
+                <h2>
+                    Warehouse Zones
+                </h2>
+
+                <p>
+                    Products are placed according to their movement frequency.
+                </p>
+
+            </div>
+
+
+            <div class="zones">
+
+
+                <!-- ZONE A -->
+
+                <div class="zone zone-a">
+
+                    <div class="zone-letter">
+                        A
+                    </div>
+
+                    <div>
+
+                        <h3>
+                            Fast Moving
+                        </h3>
+
+                        <p>
+                            High pick frequency
+                        </p>
+
+                        <small>
+                            Closest to dispatch
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ZONE B -->
+
+                <div class="zone zone-b">
+
+                    <div class="zone-letter">
+                        B
+                    </div>
+
+                    <div>
+
+                        <h3>
+                            Medium Moving
+                        </h3>
+
+                        <p>
+                            Moderate pick frequency
+                        </p>
+
+                        <small>
+                            Middle warehouse area
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ZONE C -->
+
+                <div class="zone zone-c">
+
+                    <div class="zone-letter">
+                        C
+                    </div>
+
+                    <div>
+
+                        <h3>
+                            Slow Moving
+                        </h3>
+
+                        <p>
+                            Low pick frequency
+                        </p>
+
+                        <small>
+                            Further storage area
+                        </small>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+
+    <!-- ================= FOOTER ================= -->
+
+    <footer>
+
+        <p>
+            Warehouse Slotting Optimizer
+            &nbsp;•&nbsp;
+            Smart Warehouse Management System
+        </p>
+
+    </footer>
+
+
+
+    <!-- ================= JAVASCRIPT ================= -->
+
+    <script src="script.js"></script>
+
+</body>
+</html>
